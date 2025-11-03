@@ -1,0 +1,43 @@
+/*
+ * Devicetree overlay for configuring SPI3 as a slave device
+ * on the nRF9161 DK for communication with a Teensy 4.1 master.
+ */
+
+&spi3 {
+    compatible = "nordic,nrf-spis";
+    status = "okay";
+    cs-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+    def-char = <0xFF>;
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    /* Define a logical slave device on this SPI bus that our application can reference */
+    spi_slave_node: spi-slave@0 {
+        compatible = "zephyr,spi-slave-generic";
+        reg = <0>;
+        status="okay";
+    };
+};
+
+&pinctrl {
+    spi3_default: spi3_default {
+        group1 {
+            /* Assign physical pins using NRF_PSEL macro */
+            psels = <NRF_PSEL(SPIS_SCK, 0, 13)>,
+                    <NRF_PSEL(SPIS_MOSI, 0, 14)>,
+                    <NRF_PSEL(SPIS_MISO, 0, 15)>,
+                    <NRF_PSEL(SPIS_CSN, 0, 16)>;
+        };
+    };
+
+    spi3_sleep: spi3_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIS_SCK, 0, 13)>,
+                    <NRF_PSEL(SPIS_MOSI, 0, 14)>,
+                    <NRF_PSEL(SPIS_MISO, 0, 15)>,
+                    <NRF_PSEL(SPIS_CSN, 0, 16)>;
+            low-power-enable;
+        };
+    };
+};
